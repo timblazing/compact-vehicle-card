@@ -48,6 +48,7 @@ const SCHEMA = [
   {
     name: 'general',
     type: 'expandable',
+    flatten: true,
     expanded: true,
     schema: [
       { name: 'name', selector: { text: {} } },
@@ -60,6 +61,7 @@ const SCHEMA = [
   {
     name: 'overview',
     type: 'expandable',
+    flatten: true,
     schema: [
       { name: 'odometer_entity', selector: ENTITY(['sensor']) },
       { name: 'range_entity', selector: ENTITY(['sensor']) },
@@ -76,6 +78,7 @@ const SCHEMA = [
   {
     name: 'maintenance',
     type: 'expandable',
+    flatten: true,
     schema: [
       { name: 'tires', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
       { name: 'oil_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
@@ -87,6 +90,7 @@ const SCHEMA = [
   {
     name: 'display',
     type: 'expandable',
+    flatten: true,
     schema: [
       {
         name: 'mode',
@@ -236,7 +240,17 @@ export class CompactVehicleCardEditor extends LitElement {
   private _valueChanged(ev: CustomEvent): void {
     ev.stopPropagation();
     if (!this._config) return;
-    const d = ev.detail.value as FormData;
+    const raw = ev.detail.value as FormData & Record<string, unknown>;
+    // Sections use flatten: true, so data should arrive flat. If a frontend
+    // ever nests values under the section name anyway, fold them back in.
+    const d: FormData = { ...raw };
+    for (const section of ['general', 'overview', 'maintenance', 'display'] as const) {
+      const nested = raw[section];
+      if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+        Object.assign(d, nested);
+        delete (d as Record<string, unknown>)[section];
+      }
+    }
 
     const prune = <T extends object>(obj: T): T | undefined => {
       const entries = Object.entries(obj).filter(

@@ -8,8 +8,6 @@ Works with any vehicle integration — Volvo, Mercedes, BMW, Ford, Tesla, Kia/Hy
 (`kia_uvo`), and anything else that exposes entities. Nothing manufacturer-specific is
 hardcoded.
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=timblazing&repository=compact-vehicle-card&category=plugin)
-
 ## Screenshots
 
 > Screenshots pending first release: collapsed clean, collapsed with Warning badge, expanded.
@@ -17,6 +15,8 @@ hardcoded.
 ## Installation
 
 ### HACS (recommended)
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=timblazing&repository=compact-vehicle-card&category=plugin)
 
 1. HACS → three-dot menu (⋮) → **Custom repositories**
 2. Repository: `https://github.com/timblazing/compact-vehicle-card` — Type: **Dashboard**

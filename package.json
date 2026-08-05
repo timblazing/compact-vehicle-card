@@ -1,7 +1,7 @@
 {
   "name": "compact-vehicle-card",
-  "version": "1.0.0",
-  "description": "A slim, integration-agnostic vehicle card for Home Assistant with expandable Overview and Maintenance sections.",
+  "version": "1.0.1",
+  "description": "A modern, collapsible lovelace vehicle card.",
   "type": "module",
   "license": "MIT",
   "author": "timblazing",

@@ -255,19 +255,19 @@ export class CompactVehicleCard extends LitElement {
                   class="badge ${badge.tier}"
                   title=${badge.items.join(', ')}
                   @click=${(ev: Event) => {
-                  ev.stopPropagation();
-                  this._toggle();
-                }}
+                    ev.stopPropagation();
+                    this._toggle();
+                  }}
                 >
                   <ha-icon
                     .icon=${badge.tier === 'warning' ? 'mdi:alert-circle' : 'mdi:car-door'}
                   ></ha-icon>
                   <span
                     >${
-                    badge.tier === 'warning'
-                      ? localize('badge.warning')
-                      : localize('badge.attention')
-                  }</span
+                      badge.tier === 'warning'
+                        ? localize('badge.warning')
+                        : localize('badge.attention')
+                    }</span
                   >
                 </div>`
               : nothing
