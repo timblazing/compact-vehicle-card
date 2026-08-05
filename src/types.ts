@@ -32,7 +32,6 @@ export interface DisplayConfig {
   mode?: 'expandable' | 'expanded' | 'compact';
   auto_expand_maintenance?: boolean;
   show_section_icons?: boolean;
-  show_dividers?: boolean;
   unknown_value?: string;
   fuel_warn_percent?: number;
 }

@@ -69,7 +69,6 @@ it per slot.
 | `mode` | string | `expandable` | `expandable`, `expanded` (always open), or `compact` (header only) |
 | `auto_expand_maintenance` | bool | `false` | Expand automatically when a maintenance Warning appears |
 | `show_section_icons` | bool | `true` | Show the muted leading icon on each row |
-| `show_dividers` | bool | `true` | Show 1px dividers between rows |
 | `unknown_value` | string | `-` | Text shown for unknown/unavailable values |
 | `fuel_warn_percent` | number | `15` | Fuel percent below which the fuel row turns amber |
 

@@ -1,6 +1,6 @@
 {
   "name": "compact-vehicle-card",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A modern, collapsible lovelace vehicle card.",
   "type": "module",
   "license": "MIT",

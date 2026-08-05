@@ -35,7 +35,6 @@ interface FormData {
   mode?: string;
   auto_expand_maintenance?: boolean;
   show_section_icons?: boolean;
-  show_dividers?: boolean;
   unknown_value?: string;
   fuel_warn_percent?: number;
 }
@@ -51,47 +50,9 @@ const SCHEMA = [
     flatten: true,
     expanded: true,
     schema: [
+      { name: 'prefix', selector: { text: {} } },
       { name: 'name', selector: { text: {} } },
       { name: 'icon', selector: { icon: {} } },
-      { name: 'prefix', selector: { text: {} } },
-      { name: 'engine_entity', selector: ENTITY(['binary_sensor', 'sensor', 'switch']) },
-      { name: 'lock_entity', selector: ENTITY(['lock']) },
-    ],
-  },
-  {
-    name: 'overview',
-    type: 'expandable',
-    flatten: true,
-    schema: [
-      { name: 'odometer_entity', selector: ENTITY(['sensor']) },
-      { name: 'range_entity', selector: ENTITY(['sensor']) },
-      { name: 'fuel_level_entity', selector: ENTITY(['sensor']) },
-      { name: 'fuel_amount_entity', selector: ENTITY(['sensor']) },
-      { name: 'fuel_capacity_entity', selector: ENTITY(['sensor']) },
-      { name: 'doors', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
-      { name: 'windows', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
-      { name: 'sunroof_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'tailgate_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'hood_entity', selector: ENTITY(SENSOR_DOMAINS) },
-    ],
-  },
-  {
-    name: 'maintenance',
-    type: 'expandable',
-    flatten: true,
-    schema: [
-      { name: 'tires', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
-      { name: 'oil_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'brake_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'coolant_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'washer_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
-    ],
-  },
-  {
-    name: 'display',
-    type: 'expandable',
-    flatten: true,
-    schema: [
       {
         name: 'mode',
         selector: {
@@ -105,9 +66,39 @@ const SCHEMA = [
           },
         },
       },
+    ],
+  },
+  {
+    name: 'custom_entities',
+    type: 'expandable',
+    flatten: true,
+    schema: [
+      { name: 'engine_entity', selector: ENTITY(['binary_sensor', 'sensor', 'switch']) },
+      { name: 'lock_entity', selector: ENTITY(['lock']) },
+      { name: 'odometer_entity', selector: ENTITY(['sensor']) },
+      { name: 'range_entity', selector: ENTITY(['sensor']) },
+      { name: 'fuel_level_entity', selector: ENTITY(['sensor']) },
+      { name: 'fuel_amount_entity', selector: ENTITY(['sensor']) },
+      { name: 'fuel_capacity_entity', selector: ENTITY(['sensor']) },
+      { name: 'doors', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
+      { name: 'windows', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
+      { name: 'sunroof_entity', selector: ENTITY(SENSOR_DOMAINS) },
+      { name: 'tailgate_entity', selector: ENTITY(SENSOR_DOMAINS) },
+      { name: 'hood_entity', selector: ENTITY(SENSOR_DOMAINS) },
+      { name: 'tires', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
+      { name: 'oil_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
+      { name: 'brake_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
+      { name: 'coolant_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
+      { name: 'washer_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
+    ],
+  },
+  {
+    name: 'advanced',
+    type: 'expandable',
+    flatten: true,
+    schema: [
       { name: 'auto_expand_maintenance', selector: { boolean: {} } },
       { name: 'show_section_icons', selector: { boolean: {} } },
-      { name: 'show_dividers', selector: { boolean: {} } },
       { name: 'unknown_value', selector: { text: {} } },
       { name: 'fuel_warn_percent', selector: { number: { min: 0, max: 100, mode: 'box' } } },
     ],
@@ -116,9 +107,8 @@ const SCHEMA = [
 
 const LABELS: Record<string, string> = {
   general: 'General',
-  overview: 'Overview',
-  maintenance: 'Maintenance',
-  display: 'Display',
+  custom_entities: 'Custom Entities',
+  advanced: 'Advanced',
   name: 'Name',
   icon: 'Icon',
   prefix: 'Entity prefix',
@@ -139,10 +129,9 @@ const LABELS: Record<string, string> = {
   brake_fluid_entity: 'Brake fluid',
   coolant_level_entity: 'Coolant level',
   washer_fluid_entity: 'Washer fluid',
-  mode: 'Mode',
+  mode: 'Display mode',
   auto_expand_maintenance: 'Auto-expand on maintenance warning',
   show_section_icons: 'Show row icons',
-  show_dividers: 'Show row dividers',
   unknown_value: 'Unknown value text',
   fuel_warn_percent: 'Low fuel threshold (%)',
 };
@@ -207,7 +196,6 @@ export class CompactVehicleCardEditor extends LitElement {
       mode: c.display?.mode,
       auto_expand_maintenance: c.display?.auto_expand_maintenance,
       show_section_icons: c.display?.show_section_icons,
-      show_dividers: c.display?.show_dividers,
       unknown_value: c.display?.unknown_value,
       fuel_warn_percent: c.display?.fuel_warn_percent,
     };
@@ -217,7 +205,7 @@ export class CompactVehicleCardEditor extends LitElement {
 
   private _computeHelper = (schema: { name: string }): string | undefined => {
     if (schema.name === 'prefix') {
-      return 'Entity ID prefix (e.g. volvo_xc60). The card auto-discovers matching entities; explicit fields below always win.';
+      return 'Entity ID prefix (e.g. volvo_xc60). The card auto-discovers matching entities; anything set under Custom Entities always wins.';
     }
     if (!this.hass || !this._config?.prefix) return undefined;
     const slot = DISCOVERY_SLOTS[schema.name];
@@ -244,7 +232,7 @@ export class CompactVehicleCardEditor extends LitElement {
     // Sections use flatten: true, so data should arrive flat. If a frontend
     // ever nests values under the section name anyway, fold them back in.
     const d: FormData = { ...raw };
-    for (const section of ['general', 'overview', 'maintenance', 'display'] as const) {
+    for (const section of ['general', 'custom_entities', 'advanced'] as const) {
       const nested = raw[section];
       if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
         Object.assign(d, nested);
@@ -298,7 +286,6 @@ export class CompactVehicleCardEditor extends LitElement {
       mode: d.mode,
       auto_expand_maintenance: d.auto_expand_maintenance,
       show_section_icons: d.show_section_icons,
-      show_dividers: d.show_dividers,
       unknown_value: d.unknown_value,
       fuel_warn_percent: d.fuel_warn_percent,
     });

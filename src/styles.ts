@@ -62,32 +62,6 @@ export const cardStyles = css`
     font-size: 12px;
     color: var(--secondary-text-color, #727272);
   }
-  .status-dot {
-    flex: none;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--disabled-text-color, #bdbdbd);
-  }
-  .status-dot.running {
-    background: var(--success-color, #4caf50);
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.4;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .status-dot.running {
-      animation: none;
-    }
-  }
-
   .badge {
     flex: none;
     display: flex;
@@ -200,11 +174,7 @@ export const cardStyles = css`
     cursor: pointer;
     border-bottom: 1px solid var(--divider-color, #e0e0e0);
   }
-  .row:last-child,
-  .row.no-divider {
-    border-bottom: none;
-  }
-  .section.no-dividers .row {
+  .row:last-child {
     border-bottom: none;
   }
 
@@ -241,28 +211,5 @@ export const cardStyles = css`
   .row-value.error {
     color: var(--error-color, #db4437);
     font-weight: 600;
-  }
-
-  /* ---- Fuel bar ---- */
-  .fuel-bar {
-    height: 4px;
-    border-radius: 2px;
-    background: rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.08);
-    margin: 2px 0 8px;
-    overflow: hidden;
-  }
-  .fuel-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--primary-color, #03a9f4);
-    transition: width 0.4s ease;
-  }
-  .fuel-bar-fill.warn {
-    background: var(--warning-color, #ffa600);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .fuel-bar-fill {
-      transition: none;
-    }
   }
 `;

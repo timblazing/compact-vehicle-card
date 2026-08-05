@@ -326,7 +326,7 @@ export function formatValue(stateObj: HassEntity | undefined, unknownValue: stri
   if (!stateObj || UNKNOWN_STATES.has(stateObj.state.toLowerCase())) return unknownValue;
   const unit = stateObj.attributes.unit_of_measurement;
   const num = Number(stateObj.state);
-  const text = Number.isFinite(num) ? num.toLocaleString('en-US') : stateObj.state;
+  const text = Number.isFinite(num) ? Math.trunc(num).toLocaleString('en-US') : stateObj.state;
   return unit ? `${text} ${unit}` : text;
 }
 
@@ -337,7 +337,7 @@ interface StatusRowSpec {
   icon: string;
   entity: string | undefined;
   okText: string;
-  problemWarnsOnly?: boolean;
+  problemText: string;
 }
 
 /**
@@ -444,6 +444,7 @@ export function visibleRows(
       icon: icons.sunroof ?? '',
       entity: resolved.sunroof,
       okText: 'Closed',
+      problemText: 'Open',
     },
     {
       key: 'tailgate',
@@ -452,6 +453,7 @@ export function visibleRows(
       icon: icons.tailgate ?? '',
       entity: resolved.tailgate,
       okText: 'Closed',
+      problemText: 'Open',
     },
     {
       key: 'hood',
@@ -460,6 +462,7 @@ export function visibleRows(
       icon: icons.hood ?? '',
       entity: resolved.hood,
       okText: 'Closed',
+      problemText: 'Open',
     },
   ];
 
@@ -487,13 +490,23 @@ export function visibleRows(
     const status = normalize(stateObj);
     const everSeen = seen.has(spec.entity);
     if (status === 'unknown' && !everSeen) return; // never-seen unknown rows are suppressed (§7)
+    // Binary sensors report raw on/off; show the row's own ok/problem wording instead.
+    const isBinary = spec.entity.startsWith('binary_sensor.');
+    const value =
+      status === 'unknown'
+        ? unknownValue
+        : isBinary
+          ? status === 'problem'
+            ? spec.problemText
+            : spec.okText
+          : displayState(stateObj, unknownValue);
     rows.push({
       key: spec.key,
       section: spec.section,
       kind: 'status',
       label: spec.label,
       icon: spec.icon,
-      value: status === 'unknown' ? unknownValue : displayState(stateObj, unknownValue),
+      value,
       status,
       targetEntity: spec.entity,
       warn: spec.section === 'overview' && status === 'problem',
@@ -522,6 +535,7 @@ export function visibleRows(
       icon: icons.oil ?? '',
       entity: resolved.oil,
       okText: 'OK',
+      problemText: 'Low',
     },
     {
       key: 'brake_fluid',
@@ -530,6 +544,7 @@ export function visibleRows(
       icon: icons.brake_fluid ?? '',
       entity: resolved.brake_fluid,
       okText: 'OK',
+      problemText: 'Low',
     },
     {
       key: 'coolant',
@@ -538,6 +553,7 @@ export function visibleRows(
       icon: icons.coolant ?? '',
       entity: resolved.coolant,
       okText: 'OK',
+      problemText: 'Low',
     },
     {
       key: 'washer_fluid',
@@ -546,6 +562,7 @@ export function visibleRows(
       icon: icons.washer_fluid ?? '',
       entity: resolved.washer_fluid,
       okText: 'OK',
+      problemText: 'Low',
     },
   ];
   for (const spec of fluidRows) pushStatus(spec);

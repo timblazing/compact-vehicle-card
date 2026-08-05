@@ -368,16 +368,18 @@ describe('visibleRows', () => {
   it('renders the full Volvo fixture correctly', () => {
     const rows = rowsFor(volvoConfig, volvoStates);
     const byKey = Object.fromEntries(rows.map((r) => [r.key, r]));
-    expect(byKey.odometer?.value).toBe('68,963 mi');
+    expect(byKey.odometer?.value).toBe('68,962 mi');
     expect(byKey.fuel?.value).toBe('37%');
     expect(byKey.fuel?.warn).toBe(false);
     expect(byKey.range?.value).toBe('139 mi');
     expect(byKey.doors?.value).toBe('All closed');
     expect(byKey.windows?.value).toBe('All closed');
-    expect(byKey.sunroof?.value).toBe('Off');
+    expect(byKey.sunroof?.value).toBe('Closed');
     expect(byKey.tires?.value).toBe('OK');
     expect(byKey.oil?.value).toBe('Normal');
     expect(byKey.coolant?.value).toBe('OK');
+    expect(byKey.brake_fluid?.value).toBe('OK');
+    expect(byKey.washer_fluid?.value).toBe('OK');
   });
 
   it('suppresses a never-seen unknown status row (tank lid)', () => {
@@ -389,7 +391,7 @@ describe('visibleRows', () => {
     const rows = rowsFor(volvoConfigWithTankLid, volvoStatesTankLidKnown);
     const row = rows.find((r) => r.key === 'sunroof');
     expect(row).toBeDefined();
-    expect(row?.value).toBe('Off');
+    expect(row?.value).toBe('Closed');
   });
 
   it('sticky row: seen-then-lost renders unknown_value instead of vanishing', () => {

@@ -242,10 +242,7 @@ export class CompactVehicleCard extends LitElement {
             <div class="title">${name}</div>
             ${
               engineText !== undefined
-                ? html`<div class="subtitle">
-                    <span class="status-dot ${engineRunning ? 'running' : ''}"></span>
-                    <span>${engineText}</span>
-                  </div>`
+                ? html`<div class="subtitle"><span>${engineText}</span></div>`
                 : nothing
             }
           </div>
@@ -323,12 +320,9 @@ export class CompactVehicleCard extends LitElement {
 
   private _renderSection(heading: string, rows: Row[]): TemplateResult | typeof nothing {
     if (rows.length === 0) return nothing;
-    const showDividers = this._config?.display?.show_dividers ?? true;
     return html`
       <div class="section-heading">${heading}</div>
-      <div class="section ${showDividers ? '' : 'no-dividers'}">
-        ${rows.map((row) => this._renderRow(row))}
-      </div>
+      <div class="section">${rows.map((row) => this._renderRow(row))}</div>
     `;
   }
 
@@ -338,7 +332,7 @@ export class CompactVehicleCard extends LitElement {
     const valueClass = isMaintenanceProblem ? 'error' : row.warn ? 'warn' : '';
     return html`
       <div
-        class="row ${row.key === 'fuel' && row.fuelPercent !== null ? 'no-divider' : ''}"
+        class="row"
         title=${row.title ?? nothing}
         @click=${() => this._moreInfo(row.targetEntity)}
       >
@@ -350,16 +344,6 @@ export class CompactVehicleCard extends LitElement {
         <div class="row-label">${row.label}</div>
         <div class="row-value ${valueClass}">${row.value}</div>
       </div>
-      ${
-        row.key === 'fuel' && row.fuelPercent !== null && row.fuelPercent !== undefined
-          ? html`<div class="fuel-bar">
-              <div
-                class="fuel-bar-fill ${row.warn ? 'warn' : ''}"
-                style="width: ${row.fuelPercent}%"
-              ></div>
-            </div>`
-          : nothing
-      }
     `;
   }
 }

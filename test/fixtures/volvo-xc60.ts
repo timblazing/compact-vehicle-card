@@ -21,11 +21,11 @@ export const volvoStates: HassStates = Object.fromEntries([
     device_class: 'running',
   }),
   entity('lock.volvo_xc60_lock', 'locked', { friendly_name: 'Volvo XC60 Lock' }),
-  entity('sensor.volvo_xc60_odometer', '68963', {
+  entity('sensor.volvo_xc60_odometer', '68962.882', {
     friendly_name: 'Volvo XC60 Odometer',
     unit_of_measurement: 'mi',
   }),
-  entity('sensor.volvo_xc60_distance_to_empty_tank', '139', {
+  entity('sensor.volvo_xc60_distance_to_empty_tank', '139.187', {
     friendly_name: 'Volvo XC60 Distance to empty tank',
     unit_of_measurement: 'mi',
   }),
