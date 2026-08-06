@@ -64,7 +64,10 @@ export class CompactVehicleCard extends LitElement {
   }
 
   static getStubConfig(hass?: HomeAssistant): Partial<CompactVehicleCardConfig> {
-    const config: Partial<CompactVehicleCardConfig> = { type: `custom:${CARD_TYPE}` };
+    const config: Partial<CompactVehicleCardConfig> = {
+      type: `custom:${CARD_TYPE}`,
+      display: { mode: 'expandable' },
+    };
     if (hass) {
       const guess =
         Object.keys(hass.states).find((id) => id.startsWith('lock.')) ??

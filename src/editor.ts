@@ -1,4 +1,4 @@
-import { html, LitElement, nothing, type TemplateResult } from 'lit';
+import { css, html, LitElement, nothing, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { EDITOR_TYPE } from './constants';
 import { resolveEntities } from './entity-utils';
@@ -43,66 +43,61 @@ const SENSOR_DOMAINS = ['sensor', 'binary_sensor', 'cover', 'switch'];
 const ENTITY = (domains: string[]) => ({ entity: { domain: domains } });
 const MULTI_ENTITY = (domains: string[]) => ({ entity: { domain: domains, multiple: true } });
 
-const SCHEMA = [
+// Each section is rendered as its own ha-expansion-panel holding one or more
+// small ha-forms. ha-form puts a fixed 24px gap between the rows of a single
+// form and renders helper text tight against its field, and both live in its
+// shadow root — splitting the schema into blocks is the only way to control
+// the vertical rhythm from out here.
+const PREFIX_SCHEMA = [{ name: 'prefix', selector: { text: {} } }];
+
+const PREFIX_HELPER =
+  'Entity ID prefix (e.g. volvo_xc60). The card auto-discovers matching entities; ' +
+  'anything set under Custom Entities always wins.';
+
+const GENERAL_SCHEMA = [
+  { name: 'name', selector: { text: {} } },
+  { name: 'icon', selector: { icon: {} } },
   {
-    name: 'general',
-    type: 'expandable',
-    flatten: true,
-    expanded: true,
-    schema: [
-      { name: 'prefix', selector: { text: {} } },
-      { name: 'name', selector: { text: {} } },
-      { name: 'icon', selector: { icon: {} } },
-      {
-        name: 'mode',
-        selector: {
-          select: {
-            mode: 'dropdown',
-            options: [
-              { value: 'expandable', label: 'Expandable' },
-              { value: 'expanded', label: 'Always expanded' },
-              { value: 'compact', label: 'Compact (header only)' },
-            ],
-          },
-        },
+    name: 'mode',
+    required: true,
+    selector: {
+      select: {
+        mode: 'dropdown',
+        options: [
+          { value: 'expandable', label: 'Expandable' },
+          { value: 'expanded', label: 'Always expanded' },
+          { value: 'compact', label: 'Compact (header only)' },
+        ],
       },
-    ],
+    },
   },
-  {
-    name: 'custom_entities',
-    type: 'expandable',
-    flatten: true,
-    schema: [
-      { name: 'engine_entity', selector: ENTITY(['binary_sensor', 'sensor', 'switch']) },
-      { name: 'lock_entity', selector: ENTITY(['lock']) },
-      { name: 'odometer_entity', selector: ENTITY(['sensor']) },
-      { name: 'range_entity', selector: ENTITY(['sensor']) },
-      { name: 'fuel_level_entity', selector: ENTITY(['sensor']) },
-      { name: 'fuel_amount_entity', selector: ENTITY(['sensor']) },
-      { name: 'fuel_capacity_entity', selector: ENTITY(['sensor']) },
-      { name: 'doors', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
-      { name: 'windows', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
-      { name: 'sunroof_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'tailgate_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'hood_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'tires', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
-      { name: 'oil_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'brake_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'coolant_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
-      { name: 'washer_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
-    ],
-  },
-  {
-    name: 'advanced',
-    type: 'expandable',
-    flatten: true,
-    schema: [
-      { name: 'auto_expand_maintenance', selector: { boolean: {} } },
-      { name: 'show_section_icons', selector: { boolean: {} } },
-      { name: 'unknown_value', selector: { text: {} } },
-      { name: 'fuel_warn_percent', selector: { number: { min: 0, max: 100, mode: 'box' } } },
-    ],
-  },
+];
+
+const CUSTOM_ENTITIES_SCHEMA = [
+  { name: 'engine_entity', selector: ENTITY(['binary_sensor', 'sensor', 'switch']) },
+  { name: 'lock_entity', selector: ENTITY(['lock']) },
+  { name: 'odometer_entity', selector: ENTITY(['sensor']) },
+  { name: 'range_entity', selector: ENTITY(['sensor']) },
+  { name: 'fuel_level_entity', selector: ENTITY(['sensor']) },
+  { name: 'fuel_amount_entity', selector: ENTITY(['sensor']) },
+  { name: 'fuel_capacity_entity', selector: ENTITY(['sensor']) },
+  { name: 'doors', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
+  { name: 'windows', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
+  { name: 'sunroof_entity', selector: ENTITY(SENSOR_DOMAINS) },
+  { name: 'tailgate_entity', selector: ENTITY(SENSOR_DOMAINS) },
+  { name: 'hood_entity', selector: ENTITY(SENSOR_DOMAINS) },
+  { name: 'tires', selector: MULTI_ENTITY(SENSOR_DOMAINS) },
+  { name: 'oil_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
+  { name: 'brake_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
+  { name: 'coolant_level_entity', selector: ENTITY(SENSOR_DOMAINS) },
+  { name: 'washer_fluid_entity', selector: ENTITY(SENSOR_DOMAINS) },
+];
+
+const AUTO_EXPAND_SCHEMA = [{ name: 'auto_expand_maintenance', selector: { boolean: {} } }];
+const SHOW_ICONS_SCHEMA = [{ name: 'show_section_icons', selector: { boolean: {} } }];
+const ADVANCED_VALUES_SCHEMA = [
+  { name: 'unknown_value', selector: { text: {} } },
+  { name: 'fuel_warn_percent', selector: { number: { min: 0, max: 100, mode: 'box' } } },
 ];
 
 const LABELS: Record<string, string> = {
@@ -164,6 +159,11 @@ function refEntity(ref: EntityRef): string {
 export class CompactVehicleCardEditor extends LitElement {
   @property({ attribute: false }) hass?: HomeAssistant;
   @state() private _config?: CompactVehicleCardConfig;
+  @state() private _open: Record<string, boolean> = {
+    general: true,
+    custom_entities: false,
+    advanced: false,
+  };
 
   setConfig(config: CompactVehicleCardConfig): void {
     this._config = config;
@@ -193,7 +193,8 @@ export class CompactVehicleCardEditor extends LitElement {
       brake_fluid_entity: c.maintenance?.brake_fluid_entity,
       coolant_level_entity: c.maintenance?.coolant_level_entity,
       washer_fluid_entity: c.maintenance?.washer_fluid_entity,
-      mode: c.display?.mode,
+      // Display mode always shows a selection; 'expandable' is the card default.
+      mode: c.display?.mode ?? 'expandable',
       auto_expand_maintenance: c.display?.auto_expand_maintenance,
       show_section_icons: c.display?.show_section_icons,
       unknown_value: c.display?.unknown_value,
@@ -204,9 +205,6 @@ export class CompactVehicleCardEditor extends LitElement {
   private _computeLabel = (schema: { name: string }): string => LABELS[schema.name] ?? schema.name;
 
   private _computeHelper = (schema: { name: string }): string | undefined => {
-    if (schema.name === 'prefix') {
-      return 'Entity ID prefix (e.g. volvo_xc60). The card auto-discovers matching entities; anything set under Custom Entities always wins.';
-    }
     if (!this.hass || !this._config?.prefix) return undefined;
     const slot = DISCOVERY_SLOTS[schema.name];
     if (!slot) return undefined;
@@ -302,19 +300,103 @@ export class CompactVehicleCardEditor extends LitElement {
     );
   }
 
-  protected override render(): TemplateResult | typeof nothing {
-    if (!this.hass || !this._config) return nothing;
+  private _panelToggled(key: string, ev: CustomEvent): void {
+    this._open = { ...this._open, [key]: (ev.detail as { expanded: boolean }).expanded };
+  }
+
+  /** One ha-form per block of fields, so gaps between blocks are ours to set. */
+  private _form(data: FormData, schema: unknown[], cls = ''): TemplateResult {
     return html`
       <ha-form
+        class=${cls}
         .hass=${this.hass}
-        .data=${this._formData()}
-        .schema=${SCHEMA}
+        .data=${data}
+        .schema=${schema}
         .computeLabel=${this._computeLabel}
         .computeHelper=${this._computeHelper}
         @value-changed=${this._valueChanged}
       ></ha-form>
     `;
   }
+
+  protected override render(): TemplateResult | typeof nothing {
+    if (!this.hass || !this._config) return nothing;
+    const data = this._formData();
+    return html`
+      <ha-expansion-panel
+        outlined
+        .header=${LABELS.general}
+        .expanded=${this._open.general}
+        @expanded-changed=${(ev: CustomEvent) => this._panelToggled('general', ev)}
+      >
+        <div class="content">
+          ${this._form(data, PREFIX_SCHEMA)}
+          <p class="helper">${PREFIX_HELPER}</p>
+          ${this._form(data, GENERAL_SCHEMA, 'gap-lg')}
+        </div>
+      </ha-expansion-panel>
+
+      <ha-expansion-panel
+        outlined
+        .header=${LABELS.custom_entities}
+        .expanded=${this._open.custom_entities}
+        @expanded-changed=${(ev: CustomEvent) => this._panelToggled('custom_entities', ev)}
+      >
+        <div class="content">${this._form(data, CUSTOM_ENTITIES_SCHEMA)}</div>
+      </ha-expansion-panel>
+
+      <ha-expansion-panel
+        outlined
+        .header=${LABELS.advanced}
+        .expanded=${this._open.advanced}
+        @expanded-changed=${(ev: CustomEvent) => this._panelToggled('advanced', ev)}
+      >
+        <div class="content">
+          ${this._form(data, AUTO_EXPAND_SCHEMA)} ${this._form(data, SHOW_ICONS_SCHEMA, 'gap-sm')}
+          ${this._form(data, ADVANCED_VALUES_SCHEMA, 'gap-lg')}
+        </div>
+      </ha-expansion-panel>
+    `;
+  }
+
+  static override styles = css`
+    :host {
+      display: block;
+    }
+
+    ha-expansion-panel {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    ha-expansion-panel:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .content {
+      padding: 4px 12px 12px;
+    }
+
+    ha-form {
+      display: block;
+    }
+
+    .gap-sm {
+      margin-top: 8px;
+    }
+
+    .gap-lg {
+      margin-top: 20px;
+    }
+
+    .helper {
+      margin: 10px 0 0;
+      padding: 0 16px;
+      color: var(--secondary-text-color);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  `;
 }
 
 customElements.define(EDITOR_TYPE, CompactVehicleCardEditor);

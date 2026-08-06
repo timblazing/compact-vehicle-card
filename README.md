@@ -127,6 +127,80 @@ Any integration whose entities describe a vehicle works. `prefix` auto-discovery
 path when your integration names entities with a common prefix; explicit per-slot
 configuration covers everything else.
 
+## Planned features
+
+Ordering principle: each release should either remove a reason someone gives up during setup,
+or unlock a class of vehicle the card can't represent yet. Nothing here is committed to a date.
+
+### v1.1 — Powertrain coverage
+
+*Goal: the card stops being gas-only.*
+
+- EV and hybrid support — battery state of charge, electric range, charging state, plug status,
+  time to full, target charge limit. Hybrids show both fuel and battery.
+- A shared progress-bar component used for fuel, battery, charge level, and range, with
+  configurable thresholds and a `charging` animation state.
+- Charging speed in kW, with AC/DC distinguished where the integration exposes it.
+- Powertrain auto-detection — infer gas / EV / hybrid from which slots resolved and pick the
+  default row set accordingly.
+- Per-tire pressure readouts for integrations that report numeric PSI/kPa, with a
+  `pressure_unit` option. The aggregate `OK` row stays the default when only status is available.
+
+### v1.2 — Layout control
+
+*Goal: users stop forking the card to move one row.*
+
+- Custom row ordering and visibility, defined in config and drag-reorderable in the editor.
+- Custom collapsed content — range, fuel percent, battery percent, odometer, or an arbitrary
+  entity beside the title, capped so the slim header survives.
+- User-defined sections: rename Overview/Maintenance, add sections, move rows between them.
+- Arbitrary entity rows with custom label, icon, unit, and tap action.
+- Alert chips while collapsed (`Washer fluid`, `Front left tire`) beside the badge. Default off.
+- Template support for labels and values.
+
+### v1.3 — Identity and location
+
+- Dynamic vehicle images — static URL, entity-driven image maps, and image-per-state for
+  charging/locked/driving. Optional; the icon-only header stays the default.
+- Mini map for `device_tracker` entities inside the expanded section, lazy-loaded.
+- Location row — geocoded address or zone name, with distance from home.
+- Bundled manufacturer marques, with the `mdi:car` fallback intact.
+
+### v1.4 — Controls and service
+
+- Action row: lock/unlock, honk, flash, remote start/stop, climate preconditioning — with
+  confirmation on destructive actions and a disabled state while a call is in flight.
+- Service and maintenance schedule (distance/time to service) feeding the Warning badge tier.
+- Trip statistics: distance, average speed, average consumption.
+- Diagnostics: battery voltage, engine light, warning lamps.
+
+### v2.0 — Universal vehicle support
+
+*Goal: install, point at a device, done.*
+
+- Integration presets for the common integrations (Volvo, Mercedes ME, BMW ConnectedDrive,
+  Ford/Lincoln, Tesla, Hyundai/Kia, Audi, Toyota, Renault, Nissan, VW, MG, Polestar, Rivian,
+  Subaru, Honda) so picking your integration fills every slot.
+- Device-based configuration — select the vehicle *device* and resolve entities from the device
+  registry instead of matching object-ID strings. `prefix` is the pragmatic stand-in until then.
+- Multi-vehicle card: one card, several vehicles, switchable or stacked.
+- Community preset contributions via a documented JSON format, so adding a manufacturer doesn't
+  require touching TypeScript.
+
+### v2.1 — Polish
+
+- A Style tab in the editor: accent/warning/attention colors, radius, row density, badge style.
+- Localization — extracted strings, `en` plus community translations.
+- Card presets ("Glance", "Full", "Maintenance only") as one-click starting points.
+- Animated lock and engine state transitions, behind a `prefers-reduced-motion` guard.
+
+### Deliberately not planned
+
+- **Historical graphs.** Odometer and door state don't trend usefully, and `more-info` is one tap away.
+- **A backend integration.** This stays a pure frontend card reading entities other integrations provide.
+- **Fuel cost or economy calculators.** That's a template-sensor job; display the result via v1.2
+  arbitrary entity rows.
+
 ## Troubleshooting
 
 **"Custom element doesn't exist: compact-vehicle-card"** — the resource isn't loaded.

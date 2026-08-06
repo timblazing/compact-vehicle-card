@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-08-05
+
+### Changed
+
+- Visual editor sections are now rendered directly as expansion panels holding small
+  `ha-form` blocks instead of one `ha-form` with `expandable` groups. `ha-form` fixes its
+  own row spacing inside its shadow root, so this is what makes the spacing fixes possible.
+- More breathing room between the Entity prefix field and its description.
+- Tighter spacing between the **Auto-expand on maintenance warning** and **Show row icons**
+  toggles in Advanced.
+
+### Fixed
+
+- Display mode showed no selection until the user picked one. It now shows **Expandable**,
+  which is what the card has always done by default, and can no longer be cleared to empty.
+  New cards get `display.mode: expandable` in their stub config.
+
+### Added
+
+- README section covering planned features (v1.1 through v2.1) and what is deliberately
+  out of scope.
+
 ## [1.0.2] - 2026-08-05
 
 ### Changed
