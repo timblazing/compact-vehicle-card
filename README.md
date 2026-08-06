@@ -10,7 +10,9 @@ hardcoded.
 
 ## Screenshots
 
-> Screenshots pending first release: collapsed clean, collapsed with Warning badge, expanded.
+| Collapsed | Expanded |
+| :---: | :---: |
+| <img src="docs/images/collapsed.jpg" alt="Compact Vehicle Card collapsed to a single row" width="100%"> | <img src="docs/images/expanded.jpg" alt="Compact Vehicle Card expanded showing Overview and Maintenance sections" width="100%"> |
 
 ## Installation
 
