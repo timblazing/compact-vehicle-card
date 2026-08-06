@@ -150,9 +150,22 @@ or unlock a class of vehicle the card can't represent yet. Nothing here is commi
 
 *Goal: users stop forking the card to move one row.*
 
-- Custom row ordering and visibility, defined in config and drag-reorderable in the editor.
+- Per-row visibility — hide any Overview or Maintenance row you don't care about, without
+  clearing the entity that feeds it. The editor surfaces this as a toggle beside each row in
+  **Custom Entities**, so a row's entity, its icon, and whether it shows at all live together
+  in one place instead of three.
+- Per-row icon overrides, edited in that same row, for when `mdi:car-door` isn't the mental
+  model you have of that reading.
+- Custom row ordering, drag-reorderable in the editor and written back to config for YAML users.
+- Configurable header buttons — the lock is hardcoded today. Choose which quick actions ride in
+  the header, in what order, or none at all.
+- A configurable secondary line under the vehicle name, currently fixed to engine status. Show
+  any entity's state instead, pair two of them separated by a dot (`Parked · 68 °F`), or leave
+  the line empty and let the name stand alone.
 - Custom collapsed content — range, fuel percent, battery percent, odometer, or an arbitrary
   entity beside the title, capped so the slim header survives.
+- An **Advanced** option to hide the expand chevron for a cleaner header. The card still expands
+  on tap anywhere, so the affordance is cosmetic, not functional.
 - User-defined sections: rename Overview/Maintenance, add sections, move rows between them.
 - Arbitrary entity rows with custom label, icon, unit, and tap action.
 - Alert chips while collapsed (`Washer fluid`, `Front left tire`) beside the badge. Default off.
