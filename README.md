@@ -10,7 +10,7 @@ hardcoded.
 
 ## Screenshots
 
-<img src="docs/images/collapsed.jpg" alt="Compact Vehicle Card collapsed to a single row" width="49%"> <img src="docs/images/expanded.jpg" alt="Compact Vehicle Card expanded showing Overview and Maintenance sections" width="49%">
+<img src="docs/images/collapsed.png" alt="Compact Vehicle Card collapsed to a single row" width="49%"> <img src="docs/images/expanded.png" alt="Compact Vehicle Card expanded showing Overview and Maintenance sections" width="49%">
 
 ## Installation
 
